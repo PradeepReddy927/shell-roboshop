@@ -17,10 +17,10 @@ echo "Script started executed at: $(date)" | tee -a $LOG_FILE
 
 if [ $USERID -ne 0 ]; then
     echo "ERROR:: Please run this script with root privileges"
-    exit 1 #failure is other than 0
+    exit 1
 fi
 
-VALIDATE(){ #functions receive inputs through args just like shell script args
+VALIDATE(){
    if [ $1 -ne 0 ]; then
        echo -e "$2 ... $R FAILURE $N" | tee -a $LOG_FILE
        exit 1
@@ -29,10 +29,13 @@ VALIDATE(){ #functions receive inputs through args just like shell script args
     fi
 }
 
+######## NodeJs #####
 dnf module disable nodejs -y &>>$LOG_FILE
 VALIDATE $? "Disabling NodeJs"
+
 dnf module enable nodejs:20 -y &>>$LOG_FILE
 VALIDATE $? "Enabling NodeJS 20"
+
 dnf install nodejs -y &>>$LOG_FILE
 VALIDATE $? "Installing NodeJS"
 
@@ -50,7 +53,7 @@ VALIDATE $? "Creating app directory"
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
 VALIDATE $? "Downloading catalogue application"
 
-cd /app
+cd /app || exit 1
 VALIDATE $? "Changing to app directory"
 
 rm -rf /app/*
@@ -62,16 +65,17 @@ VALIDATE $? "unzip catalogue"
 npm install &>>$LOG_FILE
 VALIDATE $? "Install dependencies"
 
+# ✅ FIXED: Removed wrong space/slash
 cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
-VALIDATE $? "copy systemctl service"
+VALIDATE $? "Copy systemctl service"
 
 systemctl daemon-reload
 systemctl enable catalogue &>>$LOG_FILE
-VALIDATE $? "enable catalogue"
+VALIDATE $? "Enable catalogue"
 
-
+# ✅ Ensure mongo.repo exists
 cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "copy Mongo repo"
+VALIDATE $? "Copy Mongo repo"
 
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Install Mongodb client"
