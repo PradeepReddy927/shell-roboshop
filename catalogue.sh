@@ -36,7 +36,7 @@ VALIDATE $? "Enabling NodeJS 20"
 dnf install nodejs -y &>>$LOG_FILE
 VALIDATE $? "Installing NodeJS"
 
-id roboshop
+id roboshop &>>$LOG_FILE
 if [ $? -ne 0 ]; then
    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
    VALIDATE $? "Creating system user"
@@ -46,16 +46,25 @@ fi
 
 mkdir -p /app 
 VALIDATE $? "Creating app directory"
+
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
 VALIDATE $? "Downloading catalogue application"
+
 cd /app
-VALIDATE $? "Changing to app directory" 
+VALIDATE $? "Changing to app directory"
+
+rm -rf /app/*
+VALIDATE $? "Removing existing code"
+
 unzip /tmp/catalogue.zip &>>$LOG_FILE
 VALIDATE $? "unzip catalogue"
+
 npm install &>>$LOG_FILE
 VALIDATE $? "Install dependencies"
+
 cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "copy sysytemctl service"
+
 systemctl daemon-reload
 systemctl enable catalogue &>>$LOG_FILE
 VALIDATE $? "enable catalogue"
@@ -63,9 +72,12 @@ VALIDATE $? "enable catalogue"
 
 cp $SCRIPT_DIR/ mango.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "copy Mongo repo"
+
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Install Mongodb client"
+
 mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
 VALIDATE $? "Load catalogue products"
+
 systemctl restart catalogue
 VALIDATE $? "Restarted catalogue"
