@@ -9,7 +9,7 @@ N="\e[0m"
 
 trap 'echo "There is a error in $LINENO, Command is: $BASH_COMMAND"' ERR
 
-LOGS_FOLDER="/var/log/shell-script"
+LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
 SCRIPT_DIR=$PWD
 MONGODB_HOST=mongodb.dawsdevops86.fun
@@ -21,6 +21,8 @@ echo "Script started executed at: $(date)" | tee -a $LOG_FILE
 if [ $USERID -ne 0 ]; then
     echo "ERROR:: Please run this script with root privileges"
     exit 1 #failure is other than 0
+else
+    echo -e "User already exist ... $Y SKIPPING $N"      
 fi
 
 
