@@ -4,8 +4,10 @@ AMI_ID="ami-09c813fb71547fc4f"
 SG_ID="sg-01bc6f6c9dc6d7fc5"
 ZONE_ID="Z04861221NEYV46WIDU4A"
 DOMAIN_NAME="dawsdevops86.fun"
-for instance in $@
+
+for instance in $@ # mongodb redis mysql
 do
+
    INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --instance-type t3.micro --security-group-ids $SG_ID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance}]" --query 'Instances[0].InstanceId' --output text)
 
    # GET Private IP
