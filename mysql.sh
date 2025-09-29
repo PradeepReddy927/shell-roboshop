@@ -27,16 +27,16 @@ VALIDATE(){ #functions receive inputs through args just like shell script args
 }
 
 dnf install mysql-server -y
-VALIDATE $? "Installing MYSQL"
+VALIDATE $? "Installing MySQL server"
 
 systemctl enable mysql
-VALIDATE $? "ENABLING MYSQL"
+VALIDATE $? "ENABLING MySQL server"
 
 systemctl start mysqld
-VALIDATE $? "Starting MYSQLD" 
+VALIDATE $? "Starting MySQL server" 
 
 mysql_secure_installation --set-root-pass RoboShop@1
-VALIDATE $? "Setting MYSQL Root Password"
+VALIDATE $? "Setting up Root Password"
 
 
 END_TIME=$(date +%s)
